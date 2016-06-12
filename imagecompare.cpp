@@ -268,25 +268,28 @@ int main(int argc, char* argv[])
   	vector<Mat> Base_slices = slice_Image(baseImage);
 	vector<Mat> Test_slices = slice_Image(testImage);
 
-	int x = 0, y = 0;
-	for (vector<Mat>::iterator base_it = Base_slices.begin(), test_it = Test_slices.begin(); base_it != Base_slices.end(); ++base_it, ++test_it,x++,y++)
+	int i = 1; int block_match = 0; 
+	for (vector<Mat>::iterator base_it = Base_slices.begin(), test_it = Test_slices.begin(); base_it != Base_slices.end(); ++base_it, ++test_it,i++)
 	{
-		cout << "Comparing Image Slice : " << x << "," << y << endl;
+		cout << "Comparing Image Slice : " << i << endl;
 		int compare_result = imageCompare(*base_it,*test_it);
 			stringstream baseimage_file;
-			baseimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Base_Image_"<<x<<"_"<<y<<".jpg";
+			baseimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Base_Image_"<<i<<".jpg";
 			//imshow("Base", *base_it);
 			imwrite(baseimage_file.str(), *base_it);
 
 			stringstream testimage_file;
-			testimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Test_Image_"<<x<<"_"<<y<<".jpg";
+			testimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Test_Image_"<<i<<".jpg";
 			//imshow("Test", *test_it);
 			imwrite(testimage_file.str(), *test_it);
 
+			if (compare_result == 1) block_match++;
 		
 	}
 
-
+	cout << "Total Blocks" << i << endl;
+	cout << "Blocke Matched" << block_match << endl;
+	cout << "Blocke Not Matched Matched" << i - block_match << endl;
 
 	return 0;
 }
