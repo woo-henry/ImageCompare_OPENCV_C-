@@ -273,17 +273,21 @@ int main(int argc, char* argv[])
 	{
 		cout << "Comparing Image Slice : " << i << endl;
 		int compare_result = imageCompare(*base_it,*test_it);
+
+		if (compare_result == 0)
+		{
 			stringstream baseimage_file;
-			baseimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Base_Image_"<<i<<".jpg";
+			baseimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Base_Image_" << i << ".jpg";
 			//imshow("Base", *base_it);
 			imwrite(baseimage_file.str(), *base_it);
 
 			stringstream testimage_file;
-			testimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Test_Image_"<<i<<".jpg";
+			testimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Test_Image_" << i << ".jpg";
 			//imshow("Test", *test_it);
 			imwrite(testimage_file.str(), *test_it);
+		}
 
-			if (compare_result == 1) block_match++;
+		if (compare_result == 1) block_match++;
 		
 	}
 
