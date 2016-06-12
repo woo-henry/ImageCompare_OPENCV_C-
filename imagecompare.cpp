@@ -51,14 +51,13 @@ int FeatureDection(Mat base, Mat test)
 	std::vector< DMatch > matches;
 	featureMatcher.match(desc2, desc1, matches);
 
-	bool match_base_test_data = desc1.data == desc2.data;
-
 	//If this doesnt work on big images, divide the images into small parts and try
 	/*CV_PROP_RW float abc; //!< diameter of the meaningful keypoint neighborhood
 	CV_PROP_RW float abc2 = 0.95;
 	abc = float(matches.size()) / kp1.size();
 	cout<< matches.size()<<" "<< kp1.size();*/
-	if ((float(matches.size()) / kp1.size()) < 0.95)
+
+	if ((float(matches.size()) / kp1.size()) < 0.86)
 	{
 		return 0;
 	}
@@ -141,7 +140,7 @@ Mat resize_img(Mat inputImg)
 	return outputImg;
 }
 
-void imageCompare(Mat baseImage, Mat testImage)
+int imageCompare(Mat baseImage, Mat testImage)
 {
 	//Mat baseImage = imread("Z:\\users\\vipaggar\\images\\compare\\perfect\\base\\pd001010.pdf.sft.tif");
 	//Mat testImage = imread("Z:\\users\\vipaggar\\images\\compare\\perfect\\test\\pd001010.pdf.sft.tif");
@@ -159,17 +158,17 @@ void imageCompare(Mat baseImage, Mat testImage)
 	{
         
 		cout << "Can not read base image" << endl;
-		return;
+		return 0;
 	}
 	if (testImage.empty())
 	{
 		cout << "Can not read test image" << endl;
-		return;
+		return 0;
 	}
 	if (baseImage.rows != testImage.rows || baseImage.cols != testImage.cols)
 	{
 		cout << "Images have different sizes." << endl;
-		//return 0;
+		return 0;
 	}
 
 	//baseImage=resize_img(baseImage);
@@ -178,11 +177,12 @@ void imageCompare(Mat baseImage, Mat testImage)
 	if (!FeatureDection(baseImage, testImage))
 	{
 		cout << "Feature Detection : Fail" << endl;
-		//return 0;
+		return 0;
 	}
 	else
 	{
 		cout << "Feature Detection : Success" << endl;
+		return 1;
 	}
 
 	/*
@@ -219,8 +219,10 @@ void imageCompare(Mat baseImage, Mat testImage)
 vector<Mat> slice_Image(Mat bigImage)
 {
 	vector<Mat> smallImages;
-	int x_increment = bigImage.cols / 4;
-	int y_increment = bigImage.rows / 4;
+	int x_dividents = 16;
+	int y_dividents = x_dividents * (float(bigImage.rows) / bigImage.cols);
+	int x_increment = bigImage.cols / x_dividents;
+	int y_increment = bigImage.rows / y_dividents;
 	for (int y = 0; y < bigImage.rows; y += y_increment)
 	{
 		for (int x = 0; x < bigImage.cols; x += x_increment)
@@ -257,14 +259,31 @@ int main(int argc, char* argv[])
 	cout << "Base: " << argv[1] << endl;
 	cout << "Test: " << argv[2] << endl;
 
-	vector<Mat> Base_slices = slice_Image(baseImage);
+	if (baseImage.rows != testImage.rows || baseImage.cols != testImage.cols)
+	{
+		cout << "Images have different sizes." << endl;
+		return 0;
+	}
+
+  	vector<Mat> Base_slices = slice_Image(baseImage);
 	vector<Mat> Test_slices = slice_Image(testImage);
 
 	int x = 0, y = 0;
 	for (vector<Mat>::iterator base_it = Base_slices.begin(), test_it = Test_slices.begin(); base_it != Base_slices.end(); ++base_it, ++test_it,x++,y++)
 	{
 		cout << "Comparing Image Slice : " << x << "," << y << endl;
-		imageCompare(*base_it,*test_it);
+		int compare_result = imageCompare(*base_it,*test_it);
+			stringstream baseimage_file;
+			baseimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Base_Image_"<<x<<"_"<<y<<".jpg";
+			//imshow("Base", *base_it);
+			imwrite(baseimage_file.str(), *base_it);
+
+			stringstream testimage_file;
+			testimage_file << "C:\\Users\\pukaur\\Documents\\DATA_MINING_PQ\\imageCompare\\difference_output\\Test_Image_"<<x<<"_"<<y<<".jpg";
+			//imshow("Test", *test_it);
+			imwrite(testimage_file.str(), *test_it);
+
+		
 	}
 
 
